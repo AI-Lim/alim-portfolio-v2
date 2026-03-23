@@ -81,7 +81,7 @@ export default function Navbar() {
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
             {/* Bouton langue */}
             <button
-              onClick={() => setLang(l => l === 'fr' ? 'en' : 'fr')}
+             onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')}
               style={{
                 background: 'none',
                 border: '1.5px solid rgba(37,79,36,.2)',
