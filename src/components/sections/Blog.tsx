@@ -217,8 +217,8 @@ export default function Blog() {
           </motion.div>
 
           {/* Desktop notes */}
-          <motion.div style={{ y: notesY }} className="blog-desktop" style2={{ position: 'relative', width: '100%', height: 'clamp(440px,62vh,560px)', maxWidth: '1100px', margin: '0 auto' }}>
-            <div style={{ position: 'relative', width: '100%', height: 'clamp(440px,62vh,560px)', maxWidth: '1100px', margin: '0 auto' }}>
+          <motion.div style={{ y: notesY }} className="blog-desktop">
+  <div style={{ position: 'relative', width: '100%', height: 'clamp(440px,62vh,560px)', maxWidth: '1100px', margin: '0 auto' }}>
               {ARTICLES.map((a, i) => (
                 <StickyNote key={a.title} article={a} pos={NOTE_POSITIONS[i]} index={i} onClick={setOpenArticle}/>
               ))}
