@@ -363,7 +363,7 @@ function HeroBtn({ href, children, primary }: { href: string; children: React.Re
         borderRadius: '3px',
         fontFamily: "'DM Sans', sans-serif",
         fontSize: '11px', fontWeight: 700,
-        letterSpacing: '2px', textTransform: 'uppercase',
+        letterSpacing: '2px', textTransform: 'uppercase' as const,
         textDecoration: 'none',
         transition: 'all .25s',
         transform: h ? 'translateY(-2px)' : 'none',
