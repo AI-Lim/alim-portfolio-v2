@@ -347,27 +347,51 @@ export default function Hero() {
   )
 }
 
-function HeroBtn({ href, children, primary }: { href: string; children: React.ReactNode; primary?: boolean }) {
-  const [h, setH] = useState(false)
+
+function HeroBtn({
+  href,
+  children,
+  primary,
+}: {
+  href: string;
+  children: React.ReactNode;
+  primary?: boolean;
+}) {
+  const [h, setH] = useState(false);
+
   return (
-    
+    <a
       href={href}
       onMouseEnter={() => setH(true)}
       onMouseLeave={() => setH(false)}
       style={{
-        display: 'inline-flex', alignItems: 'center', gap: '8px',
-        padding: '12px 22px',
-        background: h ? (primary ? '#1e3f1d' : 'rgba(37,79,36,.06)') : (primary ? '#254f24' : 'transparent'),
-        color: primary ? '#f5f2eb' : '#254f24',
-        border: `2px solid ${primary ? '#254f24' : 'rgba(37,79,36,.3)'}`,
-        borderRadius: '3px',
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        padding: "12px 22px",
+        background: h
+          ? primary
+            ? "#1e3f1d"
+            : "rgba(37,79,36,.06)"
+          : primary
+          ? "#254f24"
+          : "transparent",
+        color: primary ? "#f5f2eb" : "#254f24",
+        border: `2px solid ${
+          primary ? "#254f24" : "rgba(37,79,36,.3)"
+        }`,
+        borderRadius: "3px",
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: '11px', fontWeight: 700,
-        letterSpacing: '2px', textTransform: 'uppercase' as const,
-        textDecoration: 'none',
-        transition: 'all .25s',
-        transform: h ? 'translateY(-2px)' : 'none',
+        fontSize: "11px",
+        fontWeight: 700,
+        letterSpacing: "2px",
+        textTransform: "uppercase",
+        textDecoration: "none",
+        transition: "all .25s",
+        transform: h ? "translateY(-2px)" : "none",
       }}
-    >{children}</a>
+    >
+      {children}
+    </a>
   )
 }
