@@ -153,3 +153,41 @@ body::after {
   background: rgba(37,79,36,.06);
   transform: translateY(-2px);
 }
+/* ── Admin mobile ── */
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column !important;
+  }
+  .admin-sidebar {
+    width: 100% !important;
+    height: auto !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    z-index: 100 !important;
+    border-right: none !important;
+    border-top: 1px solid rgba(189,206,94,.1) !important;
+  }
+  .admin-sidebar nav {
+    flex-direction: row !important;
+    padding: 8px 12px !important;
+    justify-content: space-around !important;
+    overflow-x: auto !important;
+  }
+  .admin-sidebar nav button {
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 8px 12px !important;
+    font-size: 10px !important;
+    min-width: 60px !important;
+    border-left: none !important;
+    border-bottom: 2px solid transparent !important;
+  }
+  .admin-sidebar nav button[data-active="true"] {
+    border-bottom: 2px solid #bdce5e !important;
+    border-left: none !important;
+  }
+  .admin-sidebar .logo,
+  .admin-sidebar .admin-footer { display: none !important; }
+  .admin-main { padding-bottom: 90px !important; }
+}
