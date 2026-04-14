@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, X, PenLine } from 'lucide-react'
+import { getBlogPosts } from '@/lib/supabase'
 
-const ARTICLES = [
+const STATIC_ARTICLES = [
   {
     title: 'Deep Learning Indaba — Rwanda 2025',
     cat: 'Voyage & IA', date: 'Sept 2025',
@@ -64,7 +65,7 @@ Et au lieu d'essayer de réduire toutes ces facettes… j'ai décidé de les ass
 Je suis un CreaBuilder.`,
   },
   {
-    title: 'Mon lapin, mes premières leçons d\'élevage',
+    title: "Mon lapin, mes premières leçons d'élevage",
     cat: 'Vie & Aventures', date: 'Mars 2026',
     text: "J'ai adopté deux lapins. Ils sont devenus 4, puis 8, puis 13. Ce que j'ai appris sur la patience et la responsabilité.",
     image: '/assets/blog-elevage.jpg',
@@ -98,9 +99,9 @@ Comme quoi, parfois, les plus grandes leçons viennent simplement d'un petit lap
 ]
 
 const NOTE_POSITIONS = [
-  { rot: '-3deg',   top: '6%',  left: '1%',  size: 'large'  },
-  { rot: '2.5deg',  top: '4%',  left: '35%', size: 'medium' },
-  { rot: '-1.5deg', top: '5%',  left: '67%', size: 'medium' },
+  { rot: '-3deg',  top: '6%', left: '1%',  size: 'large'  },
+  { rot: '2.5deg', top: '4%', left: '35%', size: 'medium' },
+  { rot: '-1.5deg',top: '5%', left: '67%', size: 'medium' },
 ]
 const SIZE_MAP: Record<string, any> = {
   large:  { width: '268px', fontSize: '13.5px' },
@@ -174,7 +175,7 @@ function ArticleDrawer({ article, onClose }: { article: any; onClose: () => void
           <div style={{ fontFamily: "'Caveat',cursive", fontSize: '15px', color: '#9a9a90', marginBottom: '12px' }}>{article.date}</div>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(22px,4vw,28px)', fontWeight: 900, color: '#1a1a1a', lineHeight: 1.2, marginBottom: '20px' }}>{article.title}</h2>
           <div style={{ width: '36px', height: '2px', background: `linear-gradient(to right, ${article.pinColor}, transparent)`, marginBottom: '24px' }}/>
-          {article.content.split('\n\n').map((para: string, i: number) => (
+          {(article.content ?? '').split('\n\n').map((para: string, i: number) => (
             <p key={i} style={{ fontFamily: "'DM Sans',sans-serif", fontSize: '15px', lineHeight: 1.85, color: '#5a5a5a', marginBottom: '18px' }}>{para}</p>
           ))}
           <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '20px', borderTop: '1px solid rgba(37,79,36,.1)' }}>
@@ -195,10 +196,28 @@ function ArticleDrawer({ article, onClose }: { article: any; onClose: () => void
 export default function Blog() {
   const ref = useRef<HTMLElement>(null)
   const [openArticle, setOpenArticle] = useState<any>(null)
+  const [articles, setArticles]       = useState<any[]>(STATIC_ARTICLES)
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
   const headerY = useTransform(scrollYProgress, [0,1], [40, -40])
   const notesY  = useTransform(scrollYProgress, [0,1], [30, -30])
+
+  useEffect(() => {
+    getBlogPosts()
+      .then(data => {
+        if (data.length > 0) setArticles(data.map((d: any) => ({
+          title:     d.title,
+          cat:       d.category,
+          date:      d.date,
+          text:      d.summary,
+          image:     d.image_url,
+          pinColor:  d.pin_color,
+          noteColor: d.note_color,
+          content:   d.content,
+        })))
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <>
@@ -218,8 +237,8 @@ export default function Blog() {
 
           {/* Desktop notes */}
           <motion.div style={{ y: notesY }} className="blog-desktop">
-  <div style={{ position: 'relative', width: '100%', height: 'clamp(440px,62vh,560px)', maxWidth: '1100px', margin: '0 auto' }}>
-              {ARTICLES.map((a, i) => (
+            <div style={{ position: 'relative', width: '100%', height: 'clamp(440px,62vh,560px)', maxWidth: '1100px', margin: '0 auto' }}>
+              {articles.map((a, i) => (
                 <StickyNote key={a.title} article={a} pos={NOTE_POSITIONS[i]} index={i} onClick={setOpenArticle}/>
               ))}
             </div>
@@ -227,7 +246,7 @@ export default function Blog() {
 
           {/* Mobile cartes */}
           <div className="blog-mobile" style={{ display: 'none', flexDirection: 'column', gap: '16px' }}>
-            {ARTICLES.map(a => (
+            {articles.map(a => (
               <motion.div key={a.title} onClick={() => setOpenArticle(a)} whileHover={{ y: -3 }} style={{ background: a.noteColor, borderRadius: '8px', overflow: 'hidden', boxShadow: '4px 8px 24px rgba(0,0,0,.1)', cursor: 'pointer' }}>
                 <div style={{ height: '180px', overflow: 'hidden' }}>
                   <img src={a.image} alt={a.title} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }}/>

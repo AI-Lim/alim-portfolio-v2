@@ -1,28 +1,16 @@
 'use client'
-
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { getProjects } from '@/lib/supabase'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { TrendingUp, Eye, Brain, Image as ImageIcon, BarChart3, Users, Footprints, Globe, Shirt, Palette, Cpu, X, ZoomIn, ArrowUpRight, Github } from 'lucide-react'
 
-const projects = [
-  { cat: 'IA & Dev',     icon: TrendingUp, title: 'InsuranceApp',              desc: "Application IA de prédiction du prix de l'assurance maladie. Modèle de régression déployé en production.",        techs: ['Python','Scikit-learn','Streamlit'],          link: 'https://insurance-appp-jmhvajuqnkbdsc9xawcqsp.streamlit.app/', linkLabel: "Voir l'app",       featured: true  },
-  { cat: 'IA & Dev',     icon: Eye,        title: 'StyleVision',               desc: "Application de segmentation et recommandation d'images sur la mode. Déployée sur Hugging Face Spaces.",            techs: ['Python','Segmentation','HuggingFace'],        link: 'https://huggingface.co/spaces/AI-lim/StyleVision',             linkLabel: 'Hugging Face',    featured: true  },
-  { cat: 'IA & Dev',     icon: Brain,      title: 'ImageClassificator',        desc: 'Modèle CNN basé sur MobileNetV2 pour classifier des images de chats et chiens. Transfer learning.',               techs: ['Python','TensorFlow','MobileNetV2','CNN'],    link: null,                                                           linkLabel: 'GitHub',          featured: false },
-  { cat: 'IA & Dev',     icon: ImageIcon,  title: 'PixelCrafter',              desc: "Application de traitement d'image multi-effets avec OpenCV, skimage et Gradio. Transformations en temps réel.",   techs: ['Python','OpenCV','skimage','Gradio'],         link: null,                                                           linkLabel: 'GitHub',          featured: false },
-  { cat: 'IA & Dev',     icon: BarChart3,  title: 'Surveillance Marchés Publics', desc: 'Système IA de collecte et analyse automatisée des marchés publics du Bénin. Scraping intelligent + NLP.',     techs: ['Selenium','NLP','Pandas','Flask'],            link: null,                                                           linkLabel: 'Stage ACXSIT',    featured: true  },
-  { cat: 'IA & Dev',     icon: Globe,      title: 'Seoul At Home 2026',        desc: 'Site web événementiel K-Pop avec billetterie en ligne. Expérience immersive culture coréenne à Cotonou.',         techs: ['React','Vercel','Événementiel','Billetterie'],link: 'https://seoul-at-home-2026.vercel.app/',                       linkLabel: 'Voir le site',    featured: true  },
-  { cat: 'CM & Contenu', icon: Users,      title: 'Nali Crochet',              desc: 'Gestion complète des réseaux sociaux, création de contenu vidéo et stratégie éditoriale.',                          techs: ['TikTok','Instagram','CapCut','Canva'],        link: null,                                                           linkLabel: 'Client',          featured: false },
-  { cat: 'CM & Contenu', icon: Footprints, title: 'Danse MGX',                 desc: 'Gestion et création de contenu pour le groupe de danse K-pop MGX.',                                                  techs: ['Vidéo','Montage','TikTok'],                   link: null,                                                           linkLabel: 'Bénin',           featured: false },
-  { cat: 'CM & Contenu', icon: Globe,      title: 'Espace Détente — Togo',     desc: 'Community management et création de contenu pour un espace bien-être au Togo.',                                     techs: ['Facebook','Instagram','Montage vidéo'],       link: null,                                                           linkLabel: 'Client Togo',     featured: false },
-  { cat: 'CM & Contenu', icon: Globe,      title: 'RMG-Gouadeloupe',           desc: 'Community management et création de contenu pour 4 entreprises en Guadeloupe.',                                     techs: ['Pub Facebook','Design'],                     link: null,                                                           linkLabel: 'Client Guadeloupe',featured: false},
-  { cat: 'CM & Contenu', icon: Shirt,      title: 'Milalo — Togo',             desc: 'Stratégie digitale et production de contenu pour une marque togolaise.',                                            techs: ['TikTok','Canva','Stratégie digitale'],        link: null,                                                           linkLabel: 'Client Togo',     featured: false },
-  { cat: 'Design',       icon: Palette,    title: 'Sweet Era',                 desc: "Logo pour une pâtisserie afro. Illustration d'un personnage féminin aux cheveux naturels avec toque de chef.",      techs: ['Canva','Illustration','Branding'],            link: null, image: '/assets/design-sweet-era.png',                        linkLabel: 'Identité visuelle',featured: true },
-  { cat: 'Design',       icon: Palette,    title: "Clem's",                    desc: 'Logo pour un restaurant africain. Typographie africaine avec motif kente intégré.',                                  techs: ['Canva','Typographie','Branding'],             link: null, image: '/assets/design-clems.png',                            linkLabel: 'Identité visuelle',featured: true },
-]
+const ICON_MAP: Record<string, any> = {
+  TrendingUp, Eye, Brain, Image: ImageIcon, BarChart3,
+  Users, Footprints, Globe, Shirt, Palette, Cpu,
+}
 
 const CATS = ['Tout', 'IA & Dev', 'CM & Contenu', 'Design']
 const CAT_ICONS: Record<string, any> = { 'IA & Dev': Cpu, 'CM & Contenu': Users, 'Design': Palette }
-
 function ProjectCard({ p, i }: { p: any; i: number }) {
   return (
     <motion.div
@@ -189,8 +177,24 @@ function Lightbox({ project, onClose }: { project: any; onClose: () => void }) {
 
 export default function Projects() {
   const ref = useRef<HTMLElement>(null)
-  const [activeCat, setActiveCat] = useState('Tout')
-  const [lightbox,  setLightbox]  = useState<any>(null)
+const [activeCat, setActiveCat] = useState('Tout')
+const [lightbox,  setLightbox]  = useState<any>(null)
+const [projects,  setProjects]  = useState<any[]>([])
+const [loading,   setLoading]   = useState(true)
+
+useEffect(() => {
+  getProjects()
+    .then(data => setProjects(data.map((p: any) => ({
+      ...p,
+      cat:       p.tag,
+      desc:      p.description,
+      linkLabel: p.link_label,
+      image:     p.image_url,
+      icon:      ICON_MAP[p.icon] ?? TrendingUp,
+    }))))
+    .catch(() => {})
+    .finally(() => setLoading(false))
+}, [])
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
   const headerY = useTransform(scrollYProgress, [0,1], [40, -40])
